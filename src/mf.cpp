@@ -7,8 +7,8 @@
 	./mf.exe <file_name_1> <file_name_2> <...>
 -------------------------------------------------------------------------------
 	Authored by Anthoni Caldwell
-	Authored on 2026.02.03
-	Updated on 2026.02.03
+	Authored on 2026.02.04
+	Updated on 2026.02.04
 -------------------------------------------------------------------------------
 	License - BSD License
 -------------------------------------------------------------------------------	
@@ -34,29 +34,39 @@
 -----------------------------------------------------------------------------*/
 
 #include <cstdio>
-#include <cstdlib>
+
+#define MAX_FILES 1024
+
+static_assert(MAX_FILES > 0, "MAX_FILES must be at least 1");
+static_assert(MAX_FILES <= 2048, "MAX_FILES might be too big for Windows!");
 
 void make_file( const char * file_name ) { // Does the actual file making.
+	if (file_name == NULL) { 
+		printf( "Error: No file name provided.\n" );
+		return; 
+	}
+	
 	FILE * pf = fopen(file_name, "wb");
-	fclose(pf);
-}
-
-void show_param_error() { // Shows the error.
-	printf( "Error: need at least one file name to make.\n" );
+	
+	if (pf != NULL) {
+		int result = fclose(pf);
+		if (result != 0) {
+			printf( "Error: Can not create file(s).\n" );
+		}
+	}
 }
 
 int main ( int argc, char * argv[] ) {
+	int limit = (argc > MAX_FILES) ? MAX_FILES : argc;
 	
 	if (argc > 1) { // Check for file names.
 		
-		for (int i=0; i<argc; i++ ) { // Loop through file names and make files.
+		for (int i=1; i<limit; i++ ) { // Loop through file names and make files.
 			make_file( argv[i] );
 		}
 		
 	} else { // If no files are provided, show an error.
-		
-		show_param_error();
-	
+		printf( "Error: need at least one file name to make.\n" );
 	}
 
 	return 0;
